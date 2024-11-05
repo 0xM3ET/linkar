@@ -1,6 +1,7 @@
 'use client'
 import { link } from "fs"
 import { useState } from 'react'
+import { Wallet, Plus, Globe } from "lucide-react"
 
 import Image from "next/image"
 import Link from "next/link"
@@ -55,10 +56,10 @@ const Navbar = () => {
                         Wallet:${walletAddress}
                     </>
                 ) : (
-                    <>
-                        <Button variant='default' onClick={connectWallet} className="bg-pink-800 flex pb-2 justify-evenly rounded-full shadow-md hover:bg-blue-800 transition duration-200">Connect Wallet</Button>
-
-                    </>
+                    <Button size="lg" onClick={connectWallet}>
+                        <Wallet className="mr-2 h-5 w-5" />
+                        Connect Wallet
+                    </Button>
                 )}
             </ul>
         </nav >
