@@ -1,87 +1,120 @@
-import Image from "next/image";
+import Link from "next/link";
+import Image from "next/image"
+import { ArrowRight, Wallet, FileText, Calculator, Share2 } from "lucide-react"
 
 export default function Home() {
   return (
-    <main className="px-28 py-4 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold text-gray-800">LinkAr: Your Gateway to the Arweave Ecosystem</h1>
-          <p className="mt-4 text-lg text-gray-600">Showcase. Connect. Grow.</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-b from-white to-purple-50 flex items-center justify-center ">
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        {/* Introduction */}
-        <section className="text-center mb-12">
-          <p className="text-xl text-gray-700 mb-4">
-            Welcome to <strong>LinkAr</strong>, the ultimate platform to showcase your contributions to the Arweave ecosystem.
+      <main className="container px-28 py-16">
+        <section className="mx-auto max-w-3xl text-center">
+          <h1 className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl pb-2">
+            LinkAr
+          </h1>
+          <h1 className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl">
+            Your Gateway to the Arweave Ecosystem
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Showcase. Connect. Grow.
           </p>
-          <p className="text-xl text-gray-700">
-            LinkAr allows you to create a personalized portfolio of your Arweave projects, share meaningful links, and build a profile that represents your journey in the decentralized web.
+          <p className="mt-6 text-muted-foreground">
+            Welcome to LinkAr, the ultimate platform to showcase your contributions to the Arweave ecosystem.
           </p>
         </section>
 
-        {/* How It Works Section */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">How It Works</h2>
-          <div className="space-y-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-2xl font-semibold text-gray-800">1. Connect Your Arweave Wallet</h3>
-              <p className="mt-2 text-gray-700">
-                Start by securely connecting your Arweave wallet to LinkAr. This lets us gather the details of your deployed projects and activities across the Arweave ecosystem.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-2xl font-semibold text-gray-800">2. Create Your Arweave Portfolio</h3>
-              <p className="mt-2 text-gray-700">
-                Add links to your Arweave-deployed projects, key contributions, or anything else you'd like to showcase. Whether you’re an artist, developer, or a researcher, your LinkAr profile will be a simple yet powerful representation of your work.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-2xl font-semibold text-gray-800">3. Calculate Your Ar-Score</h3>
-              <p className="mt-2 text-gray-700">
-                LinkAr analyzes your portfolio and activity to calculate an <strong>Ar-Score</strong>—a unique score that reflects your engagement and impact in the Arweave ecosystem. This score can help you track your growth and demonstrate your contributions within the decentralized community.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-2xl font-semibold text-gray-800">4. Share Your Profile</h3>
-              <p className="mt-2 text-gray-700">
-                Once you've created your profile, you’ll have a unique, shareable link to showcase your work, contributions, and Ar-Score. Use it to introduce yourself to the community or build connections with others in the space.
-              </p>
-            </div>
+        <section className="my-24">
+          <h2 className="text-center text-3xl font-bold">How It Works</h2>
+          <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: Wallet,
+                title: "Connect Your Arweave Wallet",
+                description:
+                  "Start by securely connecting your Arweave wallet to LinkAr. This lets us gather the details of your deployed projects and activities across the Arweave ecosystem.",
+              },
+              {
+                icon: FileText,
+                title: "Create Your Arweave Portfolio",
+                description:
+                  "Add links to your Arweave-deployed projects, key contributions, or anything else you'd like to showcase. Your LinkAr profile will be a simple yet powerful representation of your work.",
+              },
+              {
+                icon: Calculator,
+                title: "Calculate Your Ar-Score",
+                description:
+                  "LinkAr analyzes your portfolio and activity to calculate an Ar-Score—a unique score that reflects your engagement and impact in the Arweave ecosystem.",
+              },
+              {
+                icon: Share2,
+                title: "Share Your Profile",
+                description:
+                  "Once you've created your profile, you'll have a unique, shareable link to showcase your work, contributions, and Ar-Score.",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="group relative rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="mb-4 inline-block rounded-lg bg-primary/10 p-3 text-primary">
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-primary/10 group-hover:ring-primary/20" />
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Why Choose LinkAr Section */}
-        <section className="mb-16">
-          <h2 className="text-3xl font-semibold text-gray-800 text-center mb-8">Why Choose LinkAr?</h2>
-          <ul className="space-y-6">
-            <li className="text-gray-700">
-              <strong>Easy Portfolio Creation:</strong> Build your Arweave portfolio in minutes, with a straightforward and user-friendly interface.
-            </li>
-            <li className="text-gray-700">
-              <strong>Personalized Ar-Score:</strong> Your Ar-Score reflects the impact of your work and dedication to the Arweave network, helping you gain visibility.
-            </li>
-            <li className="text-gray-700">
-              <strong>One Link to Showcase All:</strong> Share a single link with all your contributions—perfect for social media, resumes, or networking within the Arweave ecosystem.
-            </li>
-            <li className="text-gray-700">
-              <strong>Completely Decentralized:</strong> LinkAr leverages Arweave's permanent storage to make sure your profile and data are censorship-resistant and permanently available.
-            </li>
-          </ul>
+        <section className="my-24">
+          <h2 className="text-center text-3xl font-bold">Why Choose LinkAr?</h2>
+          <div className="mt-12 grid gap-8 md:grid-cols-2">
+            {[
+              {
+                title: "Easy Portfolio Creation",
+                description: "Build your Arweave portfolio in minutes, with a straightforward and user-friendly interface.",
+              },
+              {
+                title: "Personalized Ar-Score",
+                description:
+                  "Your Ar-Score reflects the impact of your work and dedication to the Arweave network, helping you gain visibility.",
+              },
+              {
+                title: "One Link to Showcase All",
+                description:
+                  "Share a single link with all your contributions—perfect for social media, resumes, or networking within the Arweave ecosystem.",
+              },
+              {
+                title: "Completely Decentralized",
+                description:
+                  "LinkAr leverages Arweave's permanent storage to make sure your profile and data are censorship-resistant and permanently available.",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="group relative rounded-2xl border bg-white p-6 shadow-sm transition-all hover:shadow-md"
+              >
+                <h3 className="mb-2 text-xl font-semibold">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-primary/10 group-hover:ring-primary/20" />
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* Call to Action */}
-        <section className="text-center mt-12">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-4">Get Started with LinkAr</h2>
-          <p className="text-lg text-gray-700 mb-8">Connect your Arweave wallet, start adding your projects, and let your contributions be known.</p>
-          <button className="bg-pink-800 text-white px-8 py-3 rounded-lg shadow-md hover:bg-blue-800 transition duration-200">
-            Connect Wallet & Start Building Your Profile
-          </button>
+        <section className="my-24 text-center">
+          <h2 className="text-3xl font-bold">Get Started with LinkAr</h2>
+          <p className="mt-4 text-muted-foreground">
+            Connect your Arweave wallet, start adding your projects, and let your contributions be known.
+          </p>
+          <Link href='/profile'>
+            <button className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-semibold text-primary-foreground hover:bg-purple-700">
+              Get Started
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </Link>
         </section>
       </main>
-    </main>
+    </div>
   )
 }

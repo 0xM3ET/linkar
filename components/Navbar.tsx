@@ -37,7 +37,7 @@ const Navbar = () => {
     return (
         <nav className="flex justify-between items-center max-container padding-container z-30 py-2 me-14 px-8 text-black font-mono bg-white bg-opacity-95 fixed top-0 w-full">
             <Link href="/" className="h-full py-1.5">
-                <Image src="/LinkAr.png" alt="logo" width={64} height={24} />
+                <Image src="/LinkAR_Logo1.png" alt="logo" width={80} height={32} />
             </Link >
             <ul className="cursor-pointer py-2 px-2 items-center flex gap-12 h-full">
 
@@ -56,7 +56,7 @@ const Navbar = () => {
                     </>
                 ) : (
                     <>
-                        <Button variant='default' onClick={connectWallet} className="bg-pink-800 flex pb-2 justify-evenly rounded-full">Connect Wallet</Button>
+                        <Button variant='default' onClick={connectWallet} className="bg-pink-800 flex pb-2 justify-evenly rounded-full shadow-md hover:bg-blue-800 transition duration-200">Connect Wallet</Button>
 
                     </>
                 )}

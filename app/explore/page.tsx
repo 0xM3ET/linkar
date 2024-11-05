@@ -1,242 +1,187 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Github, Twitter, Linkedin, Globe, Instagram, Share2, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Github, Twitter, Globe, Archive, Gift } from "lucide-react"
 
-const templates = [
-    {
-        name: "Alex Johnson",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Full-stack developer passionate about Web3 and decentralized systems.",
-        twitter: "alexjohnson",
-        github: "alexj",
-        protocolLand: "alexj.protocol.land",
-        arweave: "alexj.arweave.net",
-        arScore: 85,
-        tags: ["Full-stack Developer", "Web3"],
-        layout: "standard"
-    },
-    {
-        name: "Sarah Lee",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "UX designer with a focus on creating intuitive blockchain experiences.",
-        twitter: "sarahlee_ux",
-        github: "sarahlee",
-        protocolLand: "sarahlee.protocol.land",
-        arweave: "sarahlee.arweave.net",
-        arScore: 92,
-        tags: ["UX Designer", "Blockchain"],
-        layout: "compact"
-    },
-    {
-        name: "Mike Chen",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Blockchain developer specializing in smart contracts and DeFi.",
-        twitter: "mikechen_dev",
-        github: "mikec",
-        protocolLand: "mikec.protocol.land",
-        arweave: "mikec.arweave.net",
-        arScore: 78,
-        tags: ["Back-end Developer", "Smart Contracts"],
-        layout: "minimal"
-    },
-    {
-        name: "Emma Watson",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Crypto enthusiast and technical writer. Simplifying blockchain for everyone.",
-        twitter: "emma_writes",
-        github: "emmaw",
-        protocolLand: "emmaw.protocol.land",
-        arweave: "emmaw.arweave.net",
-        arScore: 88,
-        tags: ["Technical Writer", "Dev-Rel"],
-        layout: "standard"
-    },
-    {
-        name: "David Kim",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "NFT artist and developer. Bridging the gap between art and technology.",
-        twitter: "davidkim_nft",
-        github: "davidk",
-        protocolLand: "davidk.protocol.land",
-        arweave: "davidk.arweave.net",
-        arScore: 95,
-        tags: ["Front-end Developer", "NFT Artist"],
-        layout: "compact"
-    },
-    {
-        name: "Olivia Martinez",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Cybersecurity expert focusing on blockchain and decentralized systems.",
-        twitter: "olivia_sec",
-        github: "oliviam",
-        protocolLand: "oliviam.protocol.land",
-        arweave: "oliviam.arweave.net",
-        arScore: 82,
-        tags: ["Cybersecurity", "Blockchain"],
-        layout: "minimal"
-    },
-    {
-        name: "Ryan Taylor",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Decentralized storage enthusiast. Building the future of data persistence.",
-        twitter: "ryan_storage",
-        github: "ryant",
-        protocolLand: "ryant.protocol.land",
-        arweave: "ryant.arweave.net",
-        arScore: 90,
-        tags: ["Back-end Developer", "Decentralized Storage"],
-        layout: "standard"
-    },
-    {
-        name: "Sophia Nguyen",
-        avatar: "/placeholder.svg?height=100&width=100",
-        cover: "/placeholder.svg?height=200&width=400",
-        bio: "Blockchain researcher and educator. Empowering the next generation of Web3 developers.",
-        twitter: "sophia_edu",
-        github: "sophian",
-        protocolLand: "sophian.protocol.land",
-        arweave: "sophian.arweave.net",
-        arScore: 87,
-        tags: ["Community Manager", "Educator"],
-        layout: "compact"
-    }
-]
-
-const TemplateCard = ({ template, index }) => {
-    const layouts = {
-        standard: (
-            <Card className={`overflow-hidden ${index % 2 === 0 ? 'bg-primary/5' : 'bg-secondary/5'}`}>
-                <CardHeader className="p-0">
-                    <div className="relative h-32">
-                        <img src='/cover1.jpg' alt="Cover" className="w-full h-full object-cover" />
-                        <Avatar className="absolute -bottom-6 left-4 w-16 h-16 border-4 border-background">
-                            <AvatarImage src={template.avatar} alt={template.name} />
-                            <AvatarFallback>{template.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-                            AR Score: {template.arScore}
-                        </Badge>
-                    </div>
-                </CardHeader>
-                <CardContent className="pt-8">
-                    <h2 className="text-xl font-semibold mb-2">{template.name}</h2>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                        {template.tags.map((tag, i) => (
-                            <Badge key={i} variant="secondary">{tag}</Badge>
-                        ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">{template.bio}</p>
-                </CardContent>
-                <CardFooter className="flex justify-start space-x-2">
-                    <Button variant="outline" size="icon" aria-label={`Twitter profile of ${template.name}`}>
-                        <Twitter className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" aria-label={`GitHub profile of ${template.name}`}>
-                        <Github className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" aria-label={`Protocol Land profile of ${template.name}`}>
-                        <Globe className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" aria-label={`Arweave profile of ${template.name}`}>
-                        <Archive className="h-4 w-4" />
-                    </Button>
-                </CardFooter>
-            </Card>
-        ),
-        compact: (
-            <Card className={`overflow-hidden ${index % 2 === 0 ? 'bg-primary/5' : 'bg-secondary/5'}`}>
-                <CardHeader className="p-0">
-                    <div className="relative h-24">
-                        <img src='/cover2.jpg' alt="Cover" className="w-full h-full object-cover" />
-                        <Badge className="absolute bottom-2 right-2 bg-primary text-primary-foreground">
-                            AR Score: {template.arScore}
-                        </Badge>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                        <Avatar>
-                            <AvatarImage src={template.avatar} alt={template.name} />
-                            <AvatarFallback>{template.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h2 className="text-lg font-semibold">{template.name}</h2>
-                            <div className="flex flex-wrap gap-2 mt-1">
-                                {template.tags.map((tag, i) => (
-                                    <Badge key={i} variant="outline">{tag}</Badge>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">{template.bio}</p>
-                </CardContent>
-                <CardFooter className="flex justify-center space-x-2">
-                    <Button variant="ghost" size="sm" aria-label={`Twitter profile of ${template.name}`}>
-                        <Twitter className="h-4 w-4 mr-2" /> Twitter
-                    </Button>
-                    <Button variant="ghost" size="sm" aria-label={`GitHub profile of ${template.name}`}>
-                        <Github className="h-4 w-4 mr-2" /> GitHub
-                    </Button>
-                </CardFooter>
-            </Card>
-        ),
-        minimal: (
-            <Card className={`overflow-hidden ${index % 2 === 0 ? 'bg-primary/5' : 'bg-secondary/5'}`}>
-                <CardHeader className="p-0">
-                    <div className="relative h-32">
-                        <img src='/cover3.jpg' alt="Cover" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <Avatar className="w-20 h-20 border-4 border-background">
-                                <AvatarImage src={template.avatar} alt={template.name} />
-                                <AvatarFallback>{template.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="text-center p-4">
-                    <h2 className="text-xl font-semibold mb-2">{template.name}</h2>
-                    <Badge className="mb-2 bg-primary text-primary-foreground">AR Score: {template.arScore}</Badge>
-                    <div className="flex flex-wrap justify-center gap-2 mb-2">
-                        {template.tags.map((tag, i) => (
-                            <Badge key={i} variant="secondary">{tag}</Badge>
-                        ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{template.bio}</p>
-                </CardContent>
-                <CardFooter className="flex justify-center space-x-2">
-                    <Button variant="outline" size="icon" aria-label={`Twitter profile of ${template.name}`}>
-                        <Twitter className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" aria-label={`GitHub profile of ${template.name}`}>
-                        <Github className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" aria-label={`ProtocolLand profile of ${template.name}`}>
-                        <Gift className="h-4 w-4" />
-                    </Button>
-                </CardFooter>
-            </Card>
-        )
+const CardTemplate = ({ profile, theme }) => {
+    const themes = {
+        default: "bg-white dark:bg-gray-800",
+        purple: "bg-purple-100 dark:bg-purple-900",
+        green: "bg-green-100 dark:bg-green-900",
+        blue: "bg-blue-100 dark:bg-blue-900",
     }
 
-    return layouts[template.layout]
+    return (
+        <Card className={`${themes[theme]} overflow-hidden transition-all duration-300 hover:shadow-xl group`}>
+            <div className="relative h-48">
+                <img
+                    src={profile.image}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/60" />
+                <div className="absolute top-4 right-4">
+                    <Badge variant="secondary" className="bg-black/50 backdrop-blur-sm text-white border-none">
+                        AR Score: {profile.arScore}
+                    </Badge>
+                </div>
+            </div>
+
+            <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold mr-4">
+                        {profile.initials}
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold">{profile.name}</h3>
+                        <p className="text-sm text-muted-foreground">{profile.role}</p>
+                    </div>
+                </div>
+                <p className="text-sm mb-4 line-clamp-3">{profile.bio}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                    {profile.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                            {tag}
+                        </Badge>
+                    ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {Object.entries(profile.social).map(([platform, link]) => (
+                        <Button key={platform} size="sm" variant="outline" className="h-8" asChild>
+                            <a href={link} target="_blank" rel="noopener noreferrer">
+                                {platform === 'twitter' && <Twitter className="h-4 w-4 mr-2" />}
+                                {platform === 'github' && <Github className="h-4 w-4 mr-2" />}
+                                {platform === 'linkedin' && <Linkedin className="h-4 w-4 mr-2" />}
+                                {platform === 'website' && <Globe className="h-4 w-4 mr-2" />}
+                                {platform === 'instagram' && <Instagram className="h-4 w-4 mr-2" />}
+                                {platform}
+                            </a>
+                        </Button>
+                    ))}
+                </div>
+            </CardContent>
+
+            <CardFooter className="p-6 pt-0 flex justify-between">
+                <Button size="sm" variant="default">
+                    View Profile
+                </Button>
+                <Button size="icon" variant="ghost">
+                    <Share2 className="h-4 w-4" />
+                    <span className="sr-only">Share profile</span>
+                </Button>
+            </CardFooter>
+        </Card>
+    )
 }
 
 export default function Component() {
+    const profiles = [
+        {
+            name: "Farhat Kadiwala",
+            role: "Designer",
+            arScore: 82,
+            initials: "FK",
+            tags: ["Blockchain", "UX Design"],
+            bio: "UX designer with a focus on creating intuitive blockchain experiences. Passionate about making complex systems accessible to everyone.",
+            image: "/cover1.jpg",
+            social: {
+                twitter: "#",
+                github: "#",
+                linkedin: "#",
+                website: "#",
+                instagram: "#"
+            }
+        },
+        {
+            name: "Sarthak Shah",
+            role: "Full-stack Developer",
+            arScore: 88,
+            initials: "SS",
+            tags: ["Web3", "DeFi"],
+            bio: "Full-stack developer passionate about Web3 and decentralized systems. Building the future of finance one line of code at a time.",
+            image: "/cover2.jpg",
+            social: {
+                github: "#",
+                linkedin: "#",
+                website: "#"
+            }
+        },
+        {
+            name: "Manav Gadhiya",
+            role: "Blockchain Researcher",
+            arScore: 75,
+            initials: "MG",
+            tags: ["Cryptography", "Consensus Algorithms"],
+            bio: "Blockchain researcher specializing in cryptographic protocols and consensus algorithms. Committed to advancing the field of distributed systems.",
+            image: "/cover3.jpg",
+            social: {
+                twitter: "#",
+                github: "#",
+                linkedin: "#"
+            }
+        },
+        {
+            name: "Haard Tripathi",
+            role: "Smart Contract Developer",
+            arScore: 61,
+            initials: "HT",
+            tags: ["Lua", "Arweave"],
+            bio: "Smart contract developer with a passion for building secure and efficient decentralized applications on Ethereum and other blockchain platforms.",
+            image: "/cover3.jpg",
+            social: {
+                github: "#",
+                linkedin: "#",
+                website: "#"
+            }
+        },
+        {
+            name: "Meet Pandya",
+            role: "Blockchain Security Analyst",
+            arScore: 63,
+            initials: "MP",
+            tags: ["Security", "Auditing"],
+            bio: "Blockchain security analyst specializing in smart contract auditing and vulnerability assessment. Dedicated to making the blockchain ecosystem safer for everyone.",
+            image: "/cover1.jpg",
+            social: {
+                twitter: "#",
+                github: "#",
+                linkedin: "#",
+                website: "#"
+            }
+        },
+        {
+            name: "Ropost",
+            role: "Decentralized Storage Expert",
+            arScore: 89,
+            initials: "RP",
+            tags: ["IPFS", "Arweave", "AO"],
+            bio: "Decentralized storage enthusiast working on innovative solutions using IPFS and Filecoin. Passionate about creating a more resilient and distributed web.",
+            image: "/cover2.jpg",
+            social: {
+                twitter: '#',
+                github: "#",
+                linkedin: "#",
+                website: "#"
+            }
+        }
+    ]
+
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8 text-center">Explore Templates</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {templates.map((template, index) => (
-                    <TemplateCard key={index} template={template} index={index} />
+        <div className="container mx-auto px-4 py-12">
+            <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-purple-600 to-purple-900 bg-clip-text text-transparent">
+                Explore Ecosystem Contributers
+            </h1>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+                Connect with blockchain professionals and discover innovative projects in the Arweave space
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {profiles.map((profile, index) => (
+                    <CardTemplate
+                        key={index}
+                        profile={profile}
+                        theme={['default', 'purple', 'green', 'blue'][index % 4]}
+                    />
                 ))}
             </div>
         </div>
