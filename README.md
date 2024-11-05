@@ -1,9 +1,8 @@
-Here's a draft for your README file for the Decentralized Profile/Portfolio Creation and Sharing website:
-
 ---
 
 #LinkAr
 
+---
 ## Overview
 
 Welcome to the Decentralized Profile/Portfolio Creation and Sharing Ecosystem! This platform aims to boost the Arweave ecosystem by providing a one-stop shop for connecting with other members, showcasing skills, and enhancing collaboration within the community. 
