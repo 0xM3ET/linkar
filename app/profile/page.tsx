@@ -1,11 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { IO, mIOToken } from '@ar.io/sdk'
+import Arweave from 'arweave'
+
+const io = IO.init()
+const arweave = Arweave.init({
+    host: 'ar-io.net',
+    port: 443,
+    protocol: 'https'
+})
 
 export default function ProfilePage() {
     const [isWalletConnected, setIsWalletConnected] = useState(false)
@@ -17,7 +26,16 @@ export default function ProfilePage() {
         // This is a placeholder for actual wallet connection logic
         // You would typically use a library like ethers.js or web3.js here
         setIsWalletConnected(true)
-        setWalletAddress('0x1234...5678') // Example wallet address
+        // setWalletAddress('0x1234...5678') // Example wallet address
+
+        try {
+            await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'SIGN_TRANSACTION'])
+            const address = await window.arweaveWallet.getActiveAddress()
+            setWalletAddress(address)
+            // await fetchWalletDetails(address)
+        } catch (error) {
+            console.error('Failed to connect wallet:', error)
+        }
     }
 
     const addMoreLink = () => {
