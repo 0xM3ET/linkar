@@ -1,118 +1,299 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Github, Twitter, Linkedin, Wallet, Plus, Globe } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useEffect, useState } from "react";
+import { Github, Twitter, Linkedin, Wallet, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ethers } from "ethers";
 
-export default function Component() {
-    const [hasProfile, setHasProfile] = useState(false)
-    const [isConnected, setIsConnected] = useState(false)
+// Constants
+const PROVIDER = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/YOUR_INFURA_KEY");
+const TURBO_ENDPOINT = "https://turbo.ardrive.io";
 
-    // Simulated profile data
-    const profile = {
-        name: "Sarah Lee",
-        username: "slee",
-        role: "UX Designer",
-        arScore: 92,
-        protocolId: "protocol-123",
-        bio: "UX designer with a focus on creating intuitive blockchain experiences. Passionate about making complex systems accessible to everyone.",
-        tags: ["Blockchain", "UX Design", "Web3"],
-        social: {
-            github: "github/slee",
-            twitter: "@slee_design",
-            linkedin: "in/sarahlee",
-            website: "sarahlee.design"
-        },
-        achievements: [
-            { name: "Early Adopter", description: "Joined in the first month" },
-            { name: "Active Contributor", description: "Regular ecosystem participation" },
-            { name: "Community Leader", description: "Helps guide new members" }
-        ]
-    }
+interface Profile {
+    name: string;
+    bio: string;
+    avatar?: string;
+    links: {
+        title: string;
+        url: string;
+        icon?: string;
+    }[];
+    ensName?: string;
+    arnsName?: string;
+}
 
-    const handleConnect = () => {
-        setIsConnected(true)
-    }
+export default function ProfileComponent() {
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
+    const [walletAddress, setWalletAddress] = useState('');
+    const [isDeploying, setIsDeploying] = useState(false);
+    const [deployedUrl, setDeployedUrl] = useState('');
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        setHasProfile(true)
-    }
+    useEffect(() => {
+        checkWalletConnection();
+    }, []);
 
+    const checkWalletConnection = async () => {
+        try {
+            if (typeof window !== 'undefined' && window.arweaveWallet) {
+                const permissions = await window.arweaveWallet.getPermissions();
+                if (permissions.includes('ACCESS_ADDRESS')) {
+                    const address = await window.arweaveWallet.getActiveAddress();
+                    setWalletAddress(address);
+                    setIsConnected(true);
+                    if (address.startsWith("0x")) {
+                        await fetchEnsProfile(address);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Wallet connection error:', error);
+            setError('Failed to connect to wallet. Please ensure ArConnect is installed.');
+            setIsConnected(false);
+        }
+    };
+
+    const fetchEnsProfile = async (address: string) => {
+        try {
+            const ensName = await PROVIDER.lookupAddress(address);
+            if (ensName) {
+                setProfile(prev => prev ? { ...prev, ensName } : null);
+            }
+        } catch (error) {
+            console.error("ENS fetch error:", error);
+        }
+    };
+
+    const handleConnect = async () => {
+        try {
+            if (typeof window !== 'undefined' && window.arweaveWallet) {
+                await window.arweaveWallet.connect(['ACCESS_ADDRESS', 'SIGN_TRANSACTION']);
+                await checkWalletConnection();
+            } else {
+                throw new Error('ArConnect not found');
+            }
+        } catch (error) {
+            setError('Failed to connect wallet. Please install ArConnect extension.');
+        }
+    };
+
+    const deployToArweave = async (profileData: Profile) => {
+        setIsDeploying(true);
+        setError('');
+
+        try {
+            const html = generateProfileHtml(profileData);
+            const blob = new Blob([html], { type: 'text/html' });
+
+            if (blob.size > 100000) {
+                throw new Error('Profile content exceeds 100KB limit');
+            }
+
+            // Create form data for the file upload
+            const formData = new FormData();
+            formData.append('file', blob, 'index.html');
+
+            const response = await fetch(`${TURBO_ENDPOINT}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Deployment failed');
+            }
+
+            const { id: transactionId } = await response.json();
+            const deployedUrl = `https://arweave.net/${transactionId}`;
+            setDeployedUrl(deployedUrl);
+
+            await registerArnsName(transactionId, profileData.name);
+        } catch (error) {
+            console.error('Deployment error:', error);
+            setError(error instanceof Error ? error.message : 'Deployment failed. Please try again.');
+        } finally {
+            setIsDeploying(false);
+        }
+    };
+
+    const registerArnsName = async (transactionId: string, profileName: string) => {
+        try {
+            const arnsName = `${profileName.toLowerCase().replace(/[^a-z0-9]/g, '')}_linktree.ar`;
+
+            const response = await fetch(`${TURBO_ENDPOINT}/names`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: arnsName,
+                    target: transactionId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('ArNS registration failed');
+            }
+
+            setProfile(prev => prev ? { ...prev, arnsName } : null);
+        } catch (error) {
+            console.error('ArNS registration error:', error);
+            setError('Failed to register ArNS name. The profile is still deployed.');
+        }
+    };
+
+    const generateProfileHtml = (profile: Profile): string => {
+        return `
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${profile.name}'s Links</title>
+                <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            </head>
+            <body class="bg-gray-100 min-h-screen py-12">
+                <div class="max-w-2xl mx-auto px-4">
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <div class="text-center">
+                            <h1 class="text-3xl font-bold mb-4">${profile.name}</h1>
+                            <p class="text-gray-600 mb-8">${profile.bio}</p>
+                        </div>
+                        <div class="space-y-4">
+                            ${profile.links.map(link => `
+                                <a href="${link.url}" 
+                                   class="block w-full p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200 text-center"
+                                   target="_blank" 
+                                   rel="noopener noreferrer">
+                                    ${link.title}
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>`;
+    };
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+
+        const newProfile: Profile = {
+            name: formData.get('name') as string,
+            bio: formData.get('bio') as string,
+            links: [
+                {
+                    title: 'GitHub',
+                    url: `https://github.com/${formData.get('github')}`,
+                    icon: 'github'
+                },
+                {
+                    title: 'Twitter',
+                    url: `https://twitter.com/${formData.get('twitter')}`,
+                    icon: 'twitter'
+                },
+                {
+                    title: 'LinkedIn',
+                    url: `https://linkedin.com/in/${formData.get('linkedin')}`,
+                    icon: 'linkedin'
+                },
+                {
+                    title: 'Website',
+                    url: formData.get('website') as string,
+                    icon: 'globe'
+                }
+            ].filter(link => link.url !== 'https://github.com/' &&
+                link.url !== 'https://twitter.com/' &&
+                link.url !== 'https://linkedin.com/in/')
+        };
+
+        setProfile(newProfile);
+        await deployToArweave(newProfile);
+    };
     if (!isConnected) {
         return (
             <div className="container max-w-4xl mx-auto px-4 py-12">
-                <Card className="w-full">
+                <Card>
                     <CardHeader className="text-center">
-                        <CardTitle className="text-2xl font-bold">Welcome to Your Profile</CardTitle>
-                        <CardDescription>Connect your wallet to get started</CardDescription>
+                        <CardTitle className="text-2xl font-bold">Welcome to ArNS Linktree</CardTitle>
+                        <CardDescription>Connect your wallet to create your decentralized link page</CardDescription>
                     </CardHeader>
-                    <CardContent className="flex justify-center p-6">
+                    <CardContent className="flex flex-col items-center gap-4">
                         <Button size="lg" onClick={handleConnect}>
                             <Wallet className="mr-2 h-5 w-5" />
-                            Connect Wallet
+                            Connect Arweave Wallet
                         </Button>
+                        {error && (
+                            <Alert variant="destructive">
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        )}
                     </CardContent>
                 </Card>
             </div>
         )
     }
 
-    if (!hasProfile) {
+    if (!profile) {
         return (
             <div className="container max-w-4xl mx-auto px-4 py-12">
-                <Card className="w-full">
+                <Card>
                     <CardHeader>
                         <CardTitle className="text-2xl font-bold">Create Your Profile</CardTitle>
-                        <CardDescription>Fill out the information below to create your profile</CardDescription>
+                        <CardDescription>Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-6">
                             <div className="space-y-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="username">Username*</Label>
-                                    <Input id="username" placeholder="Enter your username" required />
+                                    <Label htmlFor="name">Name*</Label>
+                                    <Input id="name" name="name" placeholder="Your name" required />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="protocolId">Protocol Land ID*</Label>
-                                    <Input id="protocolId" placeholder="Enter your Protocol Land ID" required />
+                                    <Label htmlFor="bio">Bio*</Label>
+                                    <Input id="bio" name="bio" placeholder="A short bio about yourself" required />
                                 </div>
                                 <Separator />
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-semibold">Social Links</h3>
                                     <div className="grid gap-4">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="github">Github ID</Label>
-                                            <Input id="github" placeholder="Enter your Github ID" />
+                                            <Label htmlFor="github">Github Username</Label>
+                                            <Input id="github" name="github" placeholder="username" />
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="twitter">Twitter ID</Label>
-                                            <Input id="twitter" placeholder="Enter your Twitter ID" />
+                                            <Label htmlFor="twitter">Twitter Username</Label>
+                                            <Input id="twitter" name="twitter" placeholder="username" />
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="linkedin">LinkedIn ID</Label>
-                                            <Input id="linkedin" placeholder="Enter your LinkedIn ID" />
+                                            <Label htmlFor="linkedin">LinkedIn Username</Label>
+                                            <Input id="linkedin" name="linkedin" placeholder="username" />
                                         </div>
                                         <div className="grid gap-2">
                                             <Label htmlFor="website">Personal Website</Label>
-                                            <Input id="website" placeholder="Enter your website URL" />
+                                            <Input id="website" name="website" placeholder="https://..." />
                                         </div>
                                     </div>
                                 </div>
-                                <Button type="button" variant="outline" className="w-full">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Add More Details
-                                </Button>
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            <Button type="submit" className="w-full">Create Profile</Button>
+                        <CardFooter className="flex flex-col gap-4">
+                            <Button type="submit" className="w-full" disabled={isDeploying}>
+                                {isDeploying ? 'Deploying...' : 'Create & Deploy Profile'}
+                            </Button>
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
                         </CardFooter>
                     </form>
                 </Card>
@@ -122,100 +303,44 @@ export default function Component() {
 
     return (
         <div className="container max-w-4xl mx-auto px-4 py-12">
-            <Card className="w-full">
-                <CardHeader className="relative">
-                    <div className="absolute top-4 right-4">
-                        <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                            AR Score: {profile.arScore}
-                        </Badge>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-purple-900 flex items-center justify-center text-2xl font-bold text-white">
-                            {profile.name.split(' ').map(n => n[0]).join('')}
-                        </div>
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-start">
                         <div>
                             <CardTitle className="text-2xl font-bold">{profile.name}</CardTitle>
-                            <CardDescription className="text-lg">@{profile.username}</CardDescription>
-                            <div className="flex gap-2 mt-2">
-                                {profile.tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary">
-                                        {tag}
+                            {profile.arnsName && (
+                                <CardDescription>
+                                    <Badge variant="secondary" className="mt-2">
+                                        {profile.arnsName}
                                     </Badge>
-                                ))}
-                            </div>
+                                </CardDescription>
+                            )}
                         </div>
+                        {deployedUrl && (
+                            <Button variant="outline" asChild>
+                                <a href={deployedUrl} target="_blank" rel="noopener noreferrer">
+                                    <Globe className="mr-2 h-4 w-4" />
+                                    View Live Page
+                                </a>
+                            </Button>
+                        )}
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <Tabs defaultValue="about">
-                        <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="about">About</TabsTrigger>
-                            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-                            <TabsTrigger value="activity">Activity</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="about" className="space-y-4">
-                            <div className="prose prose-sm max-w-none">
-                                <p>{profile.bio}</p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Protocol Land ID</Label>
-                                    <p className="text-sm text-muted-foreground">{profile.protocolId}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Role</Label>
-                                    <p className="text-sm text-muted-foreground">{profile.role}</p>
-                                </div>
-                            </div>
-                            <Separator />
-                            <div className="flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href={`https://github.com/${profile.social.github}`} target="_blank" rel="noopener noreferrer">
-                                        <Github className="mr-2 h-4 w-4" />
-                                        Github
-                                    </a>
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href={`https://twitter.com/${profile.social.twitter}`} target="_blank" rel="noopener noreferrer">
-                                        <Twitter className="mr-2 h-4 w-4" />
-                                        Twitter
-                                    </a>
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href={`https://linkedin.com/${profile.social.linkedin}`} target="_blank" rel="noopener noreferrer">
-                                        <Linkedin className="mr-2 h-4 w-4" />
-                                        LinkedIn
-                                    </a>
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                    <a href={`https://${profile.social.website}`} target="_blank" rel="noopener noreferrer">
-                                        <Globe className="mr-2 h-4 w-4" />
-                                        Website
-                                    </a>
-                                </Button>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="achievements" className="space-y-4">
-                            {profile.achievements.map((achievement, index) => (
-                                <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted">
-                                    <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                        <Badge variant="secondary" className="h-6 w-6 rounded-full p-0 flex items-center justify-center">
-                                            {index + 1}
-                                        </Badge>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold">{achievement.name}</h4>
-                                        <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </TabsContent>
-                        <TabsContent value="activity">
-                            <div className="p-4 text-center text-muted-foreground">
-                                Activity feed coming soon...
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                    <p className="text-muted-foreground">{profile.bio}</p>
+                    <div className="flex flex-wrap gap-2">
+                        {profile.links.map((link, index) => (
+                            <Button key={index} variant="outline" size="sm" asChild>
+                                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                                    {link.icon === 'github' && <Github className="mr-2 h-4 w-4" />}
+                                    {link.icon === 'twitter' && <Twitter className="mr-2 h-4 w-4" />}
+                                    {link.icon === 'linkedin' && <Linkedin className="mr-2 h-4 w-4" />}
+                                    {link.icon === 'globe' && <Globe className="mr-2 h-4 w-4" />}
+                                    {link.title}
+                                </a>
+                            </Button>
+                        ))}
+                    </div>
                 </CardContent>
             </Card>
         </div>
